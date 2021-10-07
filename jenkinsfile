@@ -8,7 +8,7 @@ pipeline {
         }
         stage('Build') {
             steps {
- withCredentials([usernamePassword(credentialsId:"dockerhub",usernameVariable:"yomna521",passwordVariable:"sexybroccoli1021")]){
+ withCredentials([usernamePassword(credentialsId:"dockerhub",usernameVariable:"username",passwordVariable:"pass")]){
                 sh 'docker build . -t ${username}/booster_ci_cd_project_production:v1.0'
                 sh 'docker login -u ${username} -p ${pass}'
                 sh 'docker push ${username}/booster_ci_cd_project_production:v1.0'
@@ -17,7 +17,7 @@ pipeline {
         }  
         stage ('deploy'){
             steps{
-                withCredentials([usernamePassword(credentialsId:"dockerhub",usernameVariable:"yomna521",passwordVariable:"sexybroccoli1021")]){
+                withCredentials([usernamePassword(credentialsId:"dockerhub",usernameVariable:"username",passwordVariable:"pass")]){
                 
                 sh 'docker run -p 8000:8000 -d ${username}/booster_ci_cd_project_production:v1.0'
                 }
