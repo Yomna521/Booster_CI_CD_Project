@@ -1,0 +1,37 @@
+pipeline {
+  agent { label 'aws'}
+    stages {
+        stage('Preparation') {
+            steps {
+                git branch:'master', url: 'https://github.com/Yomna521/Booster_CI_CD_Project.git'
+            }
+        }
+        stage('Build') {
+            steps {
+ withCredentials([usernamePassword(credentialsId:"dockerhub",usernameVariable:"yomna521",passwordVariable:"sexybroccoli1021")]){
+                sh 'docker build . -t ${username}/booster_ci_cd_project_production:v1.0'
+                sh 'docker login -u ${username} -p ${pass}'
+                sh 'docker push ${username}/booster_ci_cd_project_production:v1.0'
+                }
+            }
+        }  
+        stage ('deploy'){
+            steps{
+                withCredentials([usernamePassword(credentialsId:"dockerhub",usernameVariable:"yomna521",passwordVariable:"sexybroccoli1021")]){
+                
+                sh 'docker run -p 8000:8000 -d ${username}/booster_ci_cd_project_production:v1.0'
+                }
+            }
+           // Send notifications
+        post {
+          success {
+                   slackSend (botUser: true, channel: 'jenkinstest', color: '#66ff66', message: 'pipeline succeeded ', tokenCredentialId: 'slack-token')
+          }
+          failure {
+                  slackSend (botUser: true, channel: 'jenkinstest', color: '#ff3300', message: 'pipeline unsuccessful ', tokenCredentialId: 'slack-token')
+          }
+        }
+            
+        }
+    }
+}
